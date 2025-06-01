@@ -1,0 +1,12 @@
+{
+  "main": "com.dark.listapplicationsplugin.PluginImpl",
+  "name": "List Applications Plugin",
+  "version": "1.0.0",
+  "description": "Displays a list of installed applications using Compose.",
+  "author": "DARK ENGINE",
+  "features": [
+    "compose-ui",
+    "background-task"
+  ],
+  "entryType": "both"
+}
