@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.ir.backend.js.compile
 import java.io.FileNotFoundException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -74,7 +73,13 @@ android {
 dependencies {
 
 
+
     compileOnly(files("libs/plugin-api-1.0.0.jar"))
+
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -83,7 +88,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.material3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -95,7 +100,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 }
 
-val packagePluginZip by tasks.registering {
+
+tasks.register("packagePluginZip") {
     group = "build"
     description = "Builds plugin APK and zips it as plugin.jar with external manifest.json"
 
@@ -110,10 +116,13 @@ val packagePluginZip by tasks.registering {
         val manifestFile = File(project.projectDir, "plugin_manifest/manifest.json")
         if (!manifestFile.exists()) throw FileNotFoundException("manifest.json not found at: $manifestFile")
 
-        val outputZip = File(buildDir, "plugin.zip")
+        val outputZip = File(buildDir, "list_applications_plugin.zip")
 
         ZipOutputStream(outputZip.outputStream()).use { zip ->
-            listOf(apkFile to "plugin.jar", manifestFile to "manifest.json").forEach { (file, name) ->
+            listOf(
+                apkFile to "plugin.jar",
+                manifestFile to "manifest.json"
+            ).forEach { (file, name) ->
                 zip.putNextEntry(ZipEntry(name))
                 file.inputStream().use { it.copyTo(zip) }
                 zip.closeEntry()
