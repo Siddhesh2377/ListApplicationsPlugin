@@ -2,8 +2,8 @@
   "main": "com.dark.listapplicationsplugin.PluginImpl",
   "name": "List Applications Plugin",
   "version": "1.0.0",
-  "description": "Displays a list of installed applications using Compose.",
+  "description": "This plugin supports two actions: (1) listing all installed Android applications, and (2) opening a specific app like 'WhatsApp' or 'YouTube' on user request. It handles commands such as 'list installed apps', 'show apps on the device', and 'open WhatsApp'.",
   "plugin-api-version": "1.0.0",
-  "permissions": ["list_applications"],
+  "permissions": ["list_applications", "launch_applications"],
   "author": "DARK ENGINE"
 }
