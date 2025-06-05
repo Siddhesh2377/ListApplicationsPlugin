@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.dark.plugin_api.info.Plugin
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.URL
 
 class PluginImpl(context: Context) : Plugin(context) {
 
@@ -25,6 +26,14 @@ class PluginImpl(context: Context) : Plugin(context) {
         apps.forEach { app ->
             Log.d("Plugin", "App: ${app.name} - ${app.packageName}")
         }
+
+        val result = try {
+            URL("https://www.google.com").readText()
+        } catch (e: Exception) {
+            "❌ Failed: ${e.message}"
+        }
+        Log.d("Plugin", result)
+
     }
 
 
@@ -143,8 +152,7 @@ class PluginImpl(context: Context) : Plugin(context) {
             addCategory(Intent.CATEGORY_LAUNCHER)
         }
 
-        val apps =
-            packageManager.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(0))
+        val apps = packageManager.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(0))
         return apps.map { resolveInfo ->
             val appName = resolveInfo.loadLabel(packageManager).toString()
             val packageName = resolveInfo.activityInfo.packageName
