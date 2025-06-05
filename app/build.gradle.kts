@@ -22,15 +22,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-//    signingConfigs {
-//        create("debug") {
-//            storeFile = file("${rootDir}/debug.keystore")
-//            storePassword = "android"
-//            keyAlias = "androiddebugkey"
-//            keyPassword = "android"
-//        }
-//    }
-
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -72,13 +63,11 @@ android {
 
 dependencies {
 
-
-
     compileOnly(files("libs/plugin-api-1.0.0.jar"))
 
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
 
     implementation(libs.androidx.core.ktx)
@@ -100,12 +89,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 }
 
-
 tasks.register("packagePluginZip") {
     group = "build"
     description = "Builds plugin APK and zips it as plugin.jar with external manifest.json"
 
-    dependsOn("packagePlugin")
+    dependsOn("build", "assemblePlugin")
 
     doLast {
         val buildDir = layout.buildDirectory.get().asFile
@@ -116,7 +104,8 @@ tasks.register("packagePluginZip") {
         val manifestFile = File(project.projectDir, "plugin_manifest/manifest.json")
         if (!manifestFile.exists()) throw FileNotFoundException("manifest.json not found at: $manifestFile")
 
-        val outputZip = File(buildDir, "list_applications_plugin.zip")
+        val outputZip = File(buildDir, "tmp/list_applications_plugin.zip")
+        outputZip.parentFile.mkdirs()
 
         ZipOutputStream(outputZip.outputStream()).use { zip ->
             listOf(
@@ -128,6 +117,7 @@ tasks.register("packagePluginZip") {
                 zip.closeEntry()
             }
         }
+        Runtime.getRuntime().exec(arrayOf("xdg-open", outputZip.parentFile.absolutePath))
 
         println("✅ Plugin ZIP created at: ${outputZip.absolutePath}")
     }
