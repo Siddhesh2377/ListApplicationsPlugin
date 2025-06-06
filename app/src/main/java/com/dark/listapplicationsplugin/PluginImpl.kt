@@ -22,10 +22,10 @@ class PluginImpl(context: Context) : Plugin(context) {
             Toast.makeText(context, "List Applications Plugin", Toast.LENGTH_SHORT).show()
         }
 
-        val apps = listApps(context)
-        apps.forEach { app ->
-            Log.d("Plugin", "App: ${app.name} - ${app.packageName}")
-        }
+//        val apps = listApps(context)
+//        apps.forEach { app ->
+//            Log.d("Plugin", "App: ${app.name} - ${app.packageName}")
+//        }
 
         val result = try {
             URL("https://www.google.com").readText()
@@ -59,7 +59,7 @@ class PluginImpl(context: Context) : Plugin(context) {
                     Valid command formats:
                     1. {"data": "App Name", "action": "open_app"}
                     2. {"data": "App Name", "action": "check_if_exists"}
-                    3. {"data": "", "action": "list_installed_apps"}
+                    3. {"data": "$appListText", "action": "list_installed_apps"}
 
                     Do not return any extra text. Always return a single JSON object that follows one of the above formats exactly.
                     
@@ -73,35 +73,13 @@ class PluginImpl(context: Context) : Plugin(context) {
                     put("content", prompt)
                 })
             })
-
-            put("response_format", JSONObject().apply {
-                put("type", "json_schema")
-                put("json_schema", JSONObject().apply {
-                    put("type", "object")
-                    put("properties", JSONObject().apply {
-                        put("data", JSONObject().apply {
-                            put("type", "string")
-                            put("description", "Main content of the command. For 'open_app' or 'check_if_exists', it's the app name. For 'list_installed_apps', it's an empty string.")
-                        })
-                        put("action", JSONObject().apply {
-                            put("type", "string")
-                            put("enum", JSONArray(listOf("open_app", "check_if_exists", "list_installed_apps")))
-                            put("description", "The action to be performed.")
-                        })
-                    })
-                    put("required", JSONArray().apply {
-                        put("data")
-                        put("action")
-                    })
-                })
-            })
         }
     }
 
     override fun onAiResponse(response: JSONObject) {
         Log.d("Plugin", "onAiResponse called() $response")
 
-        when (response.optString("action")) {
+        when (response.getString("action")) {
             "list_installed_apps" -> {
                 val apps = listApps(context)
                 val appNames = apps.joinToString(separator = "\n") { "- ${it.name}" }
