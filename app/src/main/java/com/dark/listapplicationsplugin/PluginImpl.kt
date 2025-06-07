@@ -9,8 +9,11 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -53,35 +56,6 @@ class PluginImpl(context: Context) : Plugin(context) {
         return (this * context.resources.displayMetrics.density).toInt()
     }
 
-
-    override fun render(): View {
-        val root = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL  // or HORIZONTAL
-            setBackgroundColor(android.graphics.Color.GRAY)
-        }
-
-        val params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            100.dp(context)
-        )
-
-        val text = Button(context)
-
-        text.text = "Hey Bitch"
-
-        text.setOnClickListener {
-            Toast.makeText(context, "Button Clicked", Toast.LENGTH_SHORT).show()
-            Log.d("Plugin", "Button Clicked")
-        }
-
-        root.addView(text)
-
-        root.layoutParams = params
-
-        return root
-    }
-
-
     override fun onStop() {
         Log.d(getName(), "onStop called()")
     }
@@ -121,7 +95,19 @@ class PluginImpl(context: Context) : Plugin(context) {
         }
     }
 
-    override fun onAiResponse(response: JSONObject) {
+    override fun onAiResponse(response: JSONObject): ViewGroup {
+        val root = LinearLayout(context)
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            // Margins: outside space
+            setMargins(32, 16, 32, 16)  // left, top, right, bottom in pixels
+        }
+
+        // Apply layout params to root
+        root.layoutParams = params
+
         Log.d("Plugin", "onAiResponse called() $response")
 
         when (response.getString("action")) {
@@ -136,7 +122,26 @@ class PluginImpl(context: Context) : Plugin(context) {
                     Toast.makeText(context, "Found ${apps.size} apps", Toast.LENGTH_SHORT).show()
                 }
 
-                // Optional: return this data back to host app if you support it
+                root.apply {
+
+                    setPadding(16, 16, 16, 16)
+
+                    val listView = ListView(context)
+
+                    listView.adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, apps.map { it.name })
+
+                    listView.setOnItemClickListener { _, _, position, _ ->
+                        val selectedApp = apps[position]
+                        launchApp(context, selectedApp.packageName) {
+                            Log.e("Plugin", "❌ Could not launch ${selectedApp.name}: $it")
+                        }
+                    }
+
+                    Log.d("Plugin:View", "Added View")
+
+                    addView(listView)
+                }
+                return root
             }
 
             "open_app" -> {
@@ -165,6 +170,8 @@ class PluginImpl(context: Context) : Plugin(context) {
                 Log.w("Plugin", "⚠️ Unknown action: ${response.optString("action")}")
             }
         }
+
+        return root
     }
 
 
