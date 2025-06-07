@@ -3,12 +3,15 @@ package com.dark.listapplicationsplugin
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +19,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dark.plugin_api.info.Plugin
 import org.json.JSONArray
@@ -44,14 +49,38 @@ class PluginImpl(context: Context) : Plugin(context) {
         Log.d("Plugin", result)
 
     }
+    fun Int.dp(context: Context): Int {
+        return (this * context.resources.displayMetrics.density).toInt()
+    }
+
 
     override fun render(): View {
-        val root = LinearLayout(context)
+        val root = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL  // or HORIZONTAL
+            setBackgroundColor(android.graphics.Color.GRAY)
+        }
 
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            100.dp(context)
+        )
 
+        val text = Button(context)
+
+        text.text = "Hey Bitch"
+
+        text.setOnClickListener {
+            Toast.makeText(context, "Button Clicked", Toast.LENGTH_SHORT).show()
+            Log.d("Plugin", "Button Clicked")
+        }
+
+        root.addView(text)
+
+        root.layoutParams = params
 
         return root
     }
+
 
     override fun onStop() {
         Log.d(getName(), "onStop called()")

@@ -86,7 +86,7 @@ dependencies {
 
 tasks.register("packagePluginZip") {
     group = "build"
-    description = "Builds plugin APK and zips it as plugin.jar with external manifest.json"
+    description = "Builds plugin APK, zips it as plugin.jar with manifest.json, uploads to FTP, and opens FTP folder."
 
     dependsOn("build", "assemblePlugin")
 
@@ -99,8 +99,8 @@ tasks.register("packagePluginZip") {
         val manifestFile = File(project.projectDir, "plugin_manifest/manifest.json")
         if (!manifestFile.exists()) throw FileNotFoundException("manifest.json not found at: $manifestFile")
 
-        val outputZip = File(buildDir, "tmp/list_applications_plugin.zip")
-        outputZip.parentFile.mkdirs()
+        // STEP 1: Create ZIP locally
+        val outputZip = File(buildDir, "list_applications_plugin.zip")
 
         ZipOutputStream(outputZip.outputStream()).use { zip ->
             listOf(
@@ -112,8 +112,26 @@ tasks.register("packagePluginZip") {
                 zip.closeEntry()
             }
         }
-        Runtime.getRuntime().exec(arrayOf("xdg-open", outputZip.parentFile.absolutePath))
 
         println("✅ Plugin ZIP created at: ${outputZip.absolutePath}")
+
+        // STEP 2: Upload ZIP to FTP server
+        println("Uploading to FTP...")
+        val uploadProcess = Runtime.getRuntime().exec(arrayOf(
+            "curl", "-T", outputZip.absolutePath,
+            "ftp://192.168.7.6:2121/Download/Plugins/"
+        ))
+        uploadProcess.inputStream.bufferedReader().use { it.lines().forEach { line -> println(line) } }
+        uploadProcess.waitFor()
+
+        println("✅ Upload complete!")
+
+        // STEP 3: Open FTP folder in file manager
+        println("Opening FTP folder...")
+        Runtime.getRuntime().exec(arrayOf(
+            "xdg-open", "ftp://192.168.7.6:2121/Download/Plugins/"
+        ))
+
+        println("✅ Done! Verify the file in your file manager.")
     }
 }
