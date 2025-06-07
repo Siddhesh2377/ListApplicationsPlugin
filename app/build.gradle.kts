@@ -58,7 +58,7 @@ android {
 
 dependencies {
 
-    compileOnly(files("libs/plugin-api-1.0.0.jar"))
+    compileOnly(files("libs/plugin-1.0.0.aar"))
 
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")

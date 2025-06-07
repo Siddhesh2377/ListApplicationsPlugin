@@ -7,7 +7,16 @@ import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 import com.dark.plugin_api.info.Plugin
 import org.json.JSONArray
 import org.json.JSONObject
@@ -36,6 +45,13 @@ class PluginImpl(context: Context) : Plugin(context) {
 
     }
 
+    override fun render(): View {
+        val root = LinearLayout(context)
+
+
+
+        return root
+    }
 
     override fun onStop() {
         Log.d(getName(), "onStop called()")
@@ -121,7 +137,6 @@ class PluginImpl(context: Context) : Plugin(context) {
             }
         }
     }
-
 
 
     fun listApps(context: Context): List<AppInfo> {
